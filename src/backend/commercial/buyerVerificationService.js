@@ -85,7 +85,7 @@ export async function verifyRfQBuyer(actor, {
   rfqId,
   evidence,
 }) {
-  assertCapability(actor, CAPABILITIES.EDIT_RFQ);
+  assertCapability(actor, CAPABILITIES.VERIFY_BUYER);
 
   const rfq = await getRfQByBusinessId(rfqId);
   if (!rfq) throw new Error(`RFQ not found: ${rfqId}`);
