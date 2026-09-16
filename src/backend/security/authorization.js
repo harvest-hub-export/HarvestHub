@@ -4,15 +4,13 @@ export class AuthorizationError extends Error {
   constructor(message = "Not authorized.") {
     super(message);
     this.name = "AuthorizationError";
+    this.code = "NOT_AUTHORIZED";
   }
 }
 
 export function hasCapability(actor = {}, capability) {
   const roles = Array.isArray(actor.roles) ? actor.roles : [];
-  return roles.some((role) => {
-    const capabilities = ROLE_CAPABILITIES[role] || [];
-    return capabilities.includes(capability);
-  });
+  return roles.some((role) => (ROLE_CAPABILITIES[role] || []).includes(capability));
 }
 
 export function assertCapability(actor, capability) {

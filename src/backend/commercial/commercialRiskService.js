@@ -1,3 +1,6 @@
+import { CAPABILITIES } from "../security/roles.js";
+import { assertCapability } from "../security/authorization.js";
+
 const RISK_LEVELS = Object.freeze({
   CLEAR: "CLEAR",
   REVIEW: "REVIEW",
@@ -35,7 +38,7 @@ export function evaluateCommercialRisk({
   for (const signal of normalizedSignals) {
     const weight = SIGNAL_WEIGHTS[signal] || 0;
     score += weight;
-    if (weight > 0) reasons.push({ signal, weight });
+    if (weight) reasons.push({ signal, weight });
   }
 
   if (buyerVerificationScore < 40) {
@@ -46,8 +49,7 @@ export function evaluateCommercialRisk({
     reasons.push({ signal: "PARTIAL_BUYER_VERIFICATION", weight: 15 });
   }
 
-  const term = String(proposedPaymentTerm || "").toUpperCase();
-  if (term.includes("OPEN ACCOUNT")) {
+  if (String(proposedPaymentTerm).toUpperCase().includes("OPEN ACCOUNT")) {
     score += 25;
     reasons.push({ signal: "OPEN_ACCOUNT_TERM", weight: 25 });
   }
@@ -57,14 +59,13 @@ export function evaluateCommercialRisk({
     reasons.push({ signal: "HIGH_TRANSACTION_VALUE", weight: 15 });
   }
 
-  const hardBlockSignals = new Set([
+  const hardBlocks = new Set([
     "TENDER_FEE_REQUEST",
     "UPFRONT_REGISTRATION_FEE",
     "PAYMENT_TO_PERSONAL_ACCOUNT",
     "BANK_DETAILS_MISMATCH",
   ]);
-
-  const blocked = normalizedSignals.some((signal) => hardBlockSignals.has(signal));
+  const blocked = normalizedSignals.some((signal) => hardBlocks.has(signal));
 
   const level = blocked
     ? RISK_LEVELS.BLOCKED
@@ -79,11 +80,13 @@ export function evaluateCommercialRisk({
     score,
     reasons,
     blocked,
-    managementReviewRequired:
-      level === RISK_LEVELS.BLOCKED ||
-      level === RISK_LEVELS.HIGH_RISK ||
-      level === RISK_LEVELS.REVIEW,
+    managementReviewRequired: level !== RISK_LEVELS.CLEAR,
   };
+}
+
+export function reviewCommercialRisk(actor, input) {
+  assertCapability(actor, CAPABILITIES.REVIEW_COMMERCIAL_RISK);
+  return evaluateCommercialRisk(input);
 }
 
 export { RISK_LEVELS, SIGNAL_WEIGHTS };

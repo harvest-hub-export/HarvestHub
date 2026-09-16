@@ -1,0 +1,21 @@
+{
+  "name": "Harvest Hub Backend V4 - Security Boundary",
+  "requires": [
+    "V1",
+    "V2",
+    "V3"
+  ],
+  "add": [
+    "src/backend/commercial.web.js",
+    "tests/commercial/authorization.test.js",
+    "tests/commercial/commercialRisk.test.js",
+    "docs/COMMERCIAL_BACKEND_V4.md"
+  ],
+  "overwrite": [
+    "src/backend/security/roles.js",
+    "src/backend/security/authorization.js",
+    "src/backend/security/permissionsPolicy.js",
+    "src/backend/commercial/commercialRiskService.js"
+  ],
+  "manualPackageJsonMerge": true
+}

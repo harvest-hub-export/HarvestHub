@@ -1,0 +1,37 @@
+[
+  {
+    "file": "src/backend/commercial.web.js",
+    "ok": true,
+    "stderr": ""
+  },
+  {
+    "file": "src/backend/commercial/commercialRiskService.js",
+    "ok": true,
+    "stderr": ""
+  },
+  {
+    "file": "src/backend/security/permissionsPolicy.js",
+    "ok": true,
+    "stderr": ""
+  },
+  {
+    "file": "src/backend/security/authorization.js",
+    "ok": true,
+    "stderr": ""
+  },
+  {
+    "file": "src/backend/security/roles.js",
+    "ok": true,
+    "stderr": ""
+  },
+  {
+    "file": "tests/commercial/commercialRisk.test.js",
+    "ok": true,
+    "stderr": ""
+  },
+  {
+    "file": "tests/commercial/authorization.test.js",
+    "ok": true,
+    "stderr": ""
+  }
+]
