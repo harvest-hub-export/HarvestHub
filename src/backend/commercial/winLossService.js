@@ -1,6 +1,4 @@
-import {
-  QUOTE_STATUS,
-} from "./constants.js";
+import { QUOTE_STATUS } from "./constants.js";
 import { CAPABILITIES } from "../security/roles.js";
 import { assertCapability } from "../security/authorization.js";
 import {
@@ -18,7 +16,7 @@ export async function recordQuoteOutcome(actor, {
   reasonCode = "",
   notes = "",
 }) {
-  assertCapability(actor, CAPABILITIES.READ_COMMERCIAL);
+  assertCapability(actor, CAPABILITIES.RECORD_OUTCOME);
 
   if (!VALID_OUTCOMES.includes(outcome)) {
     throw new Error(`Unsupported outcome: ${outcome}`);
