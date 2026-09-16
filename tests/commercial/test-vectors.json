@@ -1,0 +1,63 @@
+{
+  "pricing": [
+    {
+      "name": "30 percent gross margin",
+      "input": {
+        "originCost": 700,
+        "packingCost": 100,
+        "freightCost": 200,
+        "targetMarginPct": 30
+      },
+      "expected": {
+        "totalCost": 1000,
+        "recommendedSellPriceApprox": 1428.5714285714
+      }
+    }
+  ],
+  "commercialRisk": [
+    {
+      "name": "tender fee blocks transaction",
+      "input": {
+        "signals": ["TENDER_FEE_REQUEST"],
+        "buyerVerificationScore": 90
+      },
+      "expected": {
+        "level": "BLOCKED",
+        "blocked": true
+      }
+    },
+    {
+      "name": "strong verified buyer with no risk signals",
+      "input": {
+        "signals": [],
+        "buyerVerificationScore": 85
+      },
+      "expected": {
+        "level": "CLEAR",
+        "blocked": false
+      }
+    }
+  ],
+  "buyerVerification": [
+    {
+      "name": "strong verified buyer",
+      "input": {
+        "companyName": "Example Importer",
+        "businessEmail": "buyer@example.com",
+        "country": "Serbia",
+        "buyerType": "Importer",
+        "legalRegistrationVerified": true,
+        "taxVatVerified": true,
+        "websiteDomainMatch": true,
+        "emailDomainMatch": true,
+        "sanctionsAdverseMediaClear": true,
+        "bankIdentityVerified": true,
+        "tradeHistoryVerified": true
+      },
+      "expected": {
+        "status": "VERIFIED",
+        "minimumScore": 70
+      }
+    }
+  ]
+}
