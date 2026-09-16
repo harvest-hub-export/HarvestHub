@@ -4,7 +4,7 @@ import {
   MANAGEMENT_APPROVAL_STATUS,
   QUOTE_STATUS,
 } from "./constants.js";
-import { createQuoteId } from "./ids.js";
+import { createQuoteId, createCostBuildId } from "./ids.js";
 import { validateOperationalQuote } from "./validation.js";
 import { buildPricingResult } from "./pricingEngine.js";
 import { evaluateQuoteReadiness } from "./quoteReadiness.js";
@@ -25,7 +25,6 @@ import {
   getLatestCostBuildByQuoteId,
 } from "../repositories/costBuildsRepository.js";
 import { getLatestApprovalByEntityId } from "../repositories/approvalsRepository.js";
-import { createCostBuildId } from "./ids.js";
 import { recordQuoteActivity } from "./activityService.js";
 
 export async function createDraftQuoteFromRfQ(actor, {
@@ -99,7 +98,7 @@ export async function addQuoteLine(actor, quoteId, line) {
   const quantityMt = Number(line.quantityMt || 0);
   const unitPrice = Number(line.unitPrice || 0);
 
-  const created = await createQuoteLine({
+  return createQuoteLine({
     quoteId,
     lineNo: nextLineNo,
     product: line.product,
@@ -113,8 +112,6 @@ export async function addQuoteLine(actor, quoteId, line) {
     lineValue: quantityMt * unitPrice,
     status: "DRAFT",
   });
-
-  return created;
 }
 
 export async function calculateAndSaveCostBuild(actor, quoteId, input = {}) {
@@ -188,10 +185,19 @@ export async function getQuoteReadiness(actor, quoteId) {
 }
 
 export async function markPricingApproved(actor, quoteId) {
-  assertCapability(actor, CAPABILITIES.EDIT_COST_BUILD);
+  assertCapability(actor, CAPABILITIES.APPROVE_PRICING);
 
   const quote = await getQuoteByBusinessId(quoteId);
   if (!quote) throw new Error(`Quote not found: ${quoteId}`);
+
+  const costBuild = await getLatestCostBuildByQuoteId(quoteId);
+  if (
+    !costBuild ||
+    !(Number(costBuild.totalCost) > 0) ||
+    !(Number(costBuild.recommendedSellPrice) > 0)
+  ) {
+    throw new Error("A valid cost build is required before pricing approval.");
+  }
 
   const updated = await updateQuoteRecord({
     ...quote,
@@ -204,7 +210,7 @@ export async function markPricingApproved(actor, quoteId) {
     activityType: "PRICING_APPROVED",
     stageFrom: quote.status || null,
     stageTo: quote.status || QUOTE_STATUS.DRAFT,
-    summary: "Pricing marked as approved for readiness evaluation.",
+    summary: "Pricing approved after cost-build validation.",
     owner: actor.name || "SYSTEM",
   });
 
